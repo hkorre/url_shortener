@@ -5,4 +5,4 @@ sudo apt-get install htop
 sudo apt-get -y install docker.io
 sudo usermod -aG docker $(whoami)
 
-docker build --tag hkorre:AdNer .
+docker build --tag hkorre:UrlShort .

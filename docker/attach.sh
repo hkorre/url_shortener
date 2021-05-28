@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker exec -it hk_AdNer /bin/bash
+docker exec -it hk_UrlShort /bin/bash

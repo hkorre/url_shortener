@@ -11,34 +11,34 @@ RUN apt-get install -y \
        vim
 #       libgtk2.0-0
 
+# Connexion for python
+RUN pip install \
+       connexion[swagger-ui]
+
+# Build redis
+RUN apt-get install -y \
+       build-essential
+
+RUN wget http://download.redis.io/redis-stable.tar.gz
+
+RUN tar xvzf redis-stable.tar.gz
+
+RUN cd redis-stable && make
+
+
+# Redis interface for python
+RUN pip install \
+       redis
+
+
+
+
+
 #RUN conda install -y \
 #          python=3.5.0
 
-RUN pip install \
-       pandas
 
-# Needed for pdf2image
-RUN apt-get install -y \
-       poppler-utils
 
-# Needed for pytesseract
-RUN apt-get install -y \
-       libleptonica-dev \
-       tesseract-ocr \
-       libtesseract-dev
-
-# Optiocal Character Recognition libraries
-RUN pip install \
-       Pillow \
-       pytesseract \
-       pdf2image
-
-# Named Entity  Recognition libraries
-RUN pip install \
-       spacy==2.3.1
-
-RUN pip install \
-       datefinder
 
 #RUN conda install -y \
 #          -c https://conda.anaconda.org/menpo opencv3
