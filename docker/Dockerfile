@@ -30,6 +30,10 @@ RUN cd redis-stable && make
 RUN pip install \
        redis
 
+# Get Flask
+RUN pip install \
+       Flask
+
 
 
 
