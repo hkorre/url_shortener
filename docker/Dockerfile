@@ -34,6 +34,12 @@ RUN pip install \
 RUN pip install \
        Flask
 
+# Add database dependencies
+RUN pip install \
+       Flask-SQLAlchemy \
+       flask-marshmallow \
+       marshmallow-sqlalchemy \
+       marshmallow
 
 
 
