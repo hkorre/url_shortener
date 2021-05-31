@@ -13,7 +13,7 @@ class Person(db.Model):
 #        model = Person
 #        sqla_session = db.session 
 
-class UserSchema(ma.SQLAlchemyAutoSchema):
+class PersonSchema(ma.SQLAlchemyAutoSchema):
       class Meta:
             model = Person
             load_instance = True
