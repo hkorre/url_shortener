@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 from config import db, ma
 
-DEFAULT_EXPIRATION_DAYS = 90
 
 class ShortLink(db.Model):
     __tablename__ = 'short_link'
@@ -9,7 +8,7 @@ class ShortLink(db.Model):
     slug = db.Column(db.String(32), index=True)
     destination = db.Column(db.String(32))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    expiration = db.Column(db.DateTime, default=datetime.utcnow + timedelta(days=DEFAULT_EXPIRATION_DAYS))
+    expiration = db.Column(db.DateTime, default=datetime.utcnow)
 
 class ShortLinkSchema(ma.SQLAlchemyAutoSchema):
       class Meta:

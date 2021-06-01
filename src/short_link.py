@@ -9,6 +9,9 @@ from models import ShortLink, ShortLinkSchema
 
 
 
+DEFAULT_EXPIRATION_DAYS = 90
+
+
 def _generate_slug():
     return 1111111
 
@@ -22,7 +25,7 @@ def read_all():
     :return:        json string of list of shortlinks
     """
     # Create the list of people from our data
-    link = ShortLink.query.order_by(ShortLink.shortlink_id).all()
+    link = ShortLink.query.order_by(ShortLink.shortLink_id).all()
 
     # Serialize the data for the response
     schema = ShortLinkSchema(many=True)
@@ -65,22 +68,21 @@ def create(link):
     :return:        201 on success, 406 on person exists
     """
     destination = link.get("destination")
-    slug = _generate_slug()
 
     existing_link = (
-        ShortLink.query.filter(Shortlink.slug == slug)
+        ShortLink.query.filter(Shortlink.destination == destination)
         .one_or_none()
     )
 
     # Can we insert this shortlink?
     if existing_link is None:
 
-        # Create a person instance using the schema and the passed in person
-        schema = ShortLinkSchema()
-        new_link = schema.load(link, session=db.session)
-        #TODO - how do we add the slug to the link?
+        # Create a shortlink instance using the schema and the passed in person
+        slug = _generate_slug()
+        expiration = datetime.utcnow() + timedelta(days=DEFAULT_EXPIRATION_DAYS)
+        new_link = Person(slug=slug, destination=destination, expiration=expiration)
 
-        # Add the person to the database
+        # Add the shortlink to the database
         db.session.add(new_link)
         db.session.commit()
 
@@ -203,27 +205,21 @@ def create_custom(link):
 #        return data, 200
 
 
-def delete(person_id):
+def clean_up():
     """
-    This function deletes a person from the people structure
+    This function removes links that are beyond their expiration date
 
-    :param person_id:   Id of the person to delete
-    :return:            200 on successful delete, 404 if not found
+    :return:            200 on successful clean-up
     """
-    # Get the person requested
-    person = Person.query.filter(Person.person_id == person_id).one_or_none()
+    # Find all the old links
+    links = ShortLink.query.filter(ShortLink.expiration < datetime.utcnow()).all()
 
     # Did we find a person?
-    if person is not None:
-        db.session.delete(person)
-        db.session.commit()
-        return make_response(
-            "Person {person_id} deleted".format(person_id=person_id), 200
-        )
+    if links is not None:
+        for link in links:
+            db.session.delete(link)
+            db.session.commit()
+    return make_response(
+        "Cleaned up stale links", 200
+    )
 
-    # Otherwise, nope, didn't find that person
-    else:
-        abort(
-            404,
-            "Person not found for Id: {person_id}".format(person_id=person_id),
-        )

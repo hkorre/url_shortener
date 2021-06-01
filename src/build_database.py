@@ -18,7 +18,7 @@ db.create_all()
 
 # Iterate over the LINKS structure and populate the database
 for link in LINKS:
-    sLink = ShortLink(slug=link['slug'], destination=person['destination'])
+    sLink = ShortLink(slug=link['slug'], destination=link['destination'])
     db.session.add(sLink)
 
 db.session.commit()
