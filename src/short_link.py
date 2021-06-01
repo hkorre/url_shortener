@@ -12,9 +12,13 @@ from datetime import datetime, timedelta
 
 DEFAULT_EXPIRATION_DAYS = 90
 
-
+#TODO
 def _generate_slug():
     return 1111111
+
+#TODO
+def _is_slug_acceptable(slug):
+    return True
 
 
 
@@ -32,33 +36,6 @@ def read_all():
     schema = ShortLinkSchema(many=True)
     data = schema.dump(link)
     return data
-
-
-#def read_one(person_id):
-#    """
-#    This function responds to a request for /api/people/{person_id}
-#    with one matching person from people
-#
-#    :param person_id:   Id of person to find
-#    :return:            person matching id
-#    """
-#    # Get the person requested
-#    person = Person.query.filter(Person.person_id == person_id).one_or_none()
-#
-#    # Did we find a person?
-#    if person is not None:
-#
-#        # Serialize the data for the response
-#        person_schema = PersonSchema()
-#        data = person_schema.dump(person)
-#        return data
-#
-#    # Otherwise, nope, didn't find that person
-#    else:
-#        abort(
-#            404,
-#            "Person not found for Id: {person_id}".format(person_id=person_id),
-#        )
 
 
 def create(link):
@@ -82,17 +59,14 @@ def create(link):
         slug = _generate_slug()
         expiration = datetime.utcnow() + timedelta(days=DEFAULT_EXPIRATION_DAYS)
         new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
-        print("created a new link...")
 
         # Add the shortlink to the database
         db.session.add(new_link)
         db.session.commit()
-        print("added to the database...")
 
         # Serialize and return the newly created link in the response
         schema = ShortLinkSchema()
         data = schema.dump(new_link)
-        print("grabbed the new link...")
 
         return data, 201
 
@@ -105,46 +79,63 @@ def create(link):
             ),
         )
 
-def create_custom(link):
+def create_custom(slug, link):
     """
-    This function creates a new shortlink based on the passed in destination
+    This function creates a new shortlink to a custom slug based on the passed in destination
 
+    :param slug:    custom url ending
     :param link:    holds info needed to create shortlink
     :return:        201 on success, 406 on person exists
     """
     destination = link.get("destination")
-    slug = _generate_slug()
 
-    existing_link = (
-        ShortLink.query.filter(Shortlink.slug == slug)
+    existing_slug = (
+        ShortLink.query.filter(ShortLink.slug == slug)
         .one_or_none()
     )
-
-    # Can we insert this shortlink?
-    if existing_link is None:
-
-        # Create a person instance using the schema and the passed in person
-        schema = ShortLinkSchema()
-        new_link = schema.load(link, session=db.session)
-        #TODO - how do we add the slug to the link?
-
-        # Add the person to the database
-        db.session.add(new_link)
-        db.session.commit()
-
-        # Serialize and return the newly created link in the response
-        data = schema.dump(new_link)
-
-        return data, 201
-
-    # Otherwise, nope, person exists already
-    else:
+    if existing_slug is not None:
         abort(
             409,
-            "ShortLink {slug} -> {destination} exists already".format(
-                slug=slug, destination=destination
+            "ShortLink for {slug} exists already".format(
+                slug=slug
             ),
         )
+
+    existing_destination = (
+        ShortLink.query.filter(ShortLink.destination == destination)
+        .one_or_none()
+    )
+    if existing_destination is not None:
+        abort(
+            409,
+            "ShortLink for {destination} exists already".format(
+                destination=destination
+            ),
+        )
+
+    if _is_slug_acceptable(slug) == False:
+        abort(
+            409,
+            "Slug {slug} is not acceptable. Please choose 7 characts made of A-Z, a-z, 0-9".format(
+                slug=slug
+            ),
+        )
+        
+    ## if we can create the link...
+    # Create a shortlink instance using the schema and the passed in person
+    expiration = datetime.utcnow() + timedelta(days=DEFAULT_EXPIRATION_DAYS)
+    new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
+
+    # Add the shortlink to the database
+    db.session.add(new_link)
+    db.session.commit()
+
+    # Serialize and return the newly created link in the response
+    schema = ShortLinkSchema()
+    data = schema.dump(new_link)
+
+    return data, 201
+
 
 
 #def update(person_id, person):

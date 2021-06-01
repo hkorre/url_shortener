@@ -81,7 +81,7 @@ paths:
           description: Potential slug to use
           type: string
           required: True
-        - name: input
+        - name: link
           in: body
           description: Info needed to create link
           required: True
