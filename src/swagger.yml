@@ -2,7 +2,7 @@ swagger: "2.0"
 info:
   description: This is the swagger file that goes with our server code
   version: "1.0.0"
-  title: Swagger Rest Article
+  title: Swagger for URL Shortener
 consumes:
   - application/json
 produces:
@@ -12,158 +12,99 @@ basePath: /api
 
 # Paths supported by the server application
 paths:
-  /people:
+  /shortlinks:
     get:
-      operationId: people.read_all
+      operationId: short_link.read_all
       tags:
-        - People
-      summary: Read the entire set of people, sorted by last name
-      description: Read the entire set of people, sorted by last name
+        - ShortLink
+      summary: Read the entire set of links, for debug
+      description: Read the entire set of links, for debug
       responses:
         200:
-          description: Successfully read people set operation
+          description: Successfully read shorlink set operation
           schema:
             type: array
             items:
               properties:
-                person_id:
+                shortLink_id:
                   type: string
-                  description: Id of the person
-                fname:
+                  description: Id of the shortlink
+                slug:
                   type: string
-                  description: First name of the person
-                lname:
+                  description: Slug of the shortlink
+                destination:
                   type: string
-                  description: Last name of the person
+                  description: Destination URL
                 timestamp:
                   type: string
-                  description: Creation/Update timestamp of the person
+                  description: Creation/Update timestamp of the shortlink
+                expiration:
+                  type: string
+                  description: Expiration timestamp of the shortlink
 
     post:
-      operationId: people.create
+      operationId: short_link.create
       tags:
-        - People
-      summary: Create a person
-      description: Create a new person
+        - ShortLink
+      summary: Create a shortlink with automatic slug
+      description: Create a new shortlink with automatic slug
       parameters:
-        - name: person
+        - name: link
           in: body
-          description: Person to create
+          description: Info needed to create link
           required: True
           schema:
             type: object
             properties:
-              fname:
+              destination:
                 type: string
-                description: First name of person to create
-              lname:
-                type: string
-                description: Last name of person to create
+                description: Destination to link to
       responses:
         201:
-          description: Successfully created person
+          description: Successfully created shortlink
           schema:
             properties:
-              person_id:
+              slug:
                 type: string
-                description: Id of the person
-              fname:
-                type: string
-                description: First name of the person
-              lname:
-                type: string
-                description: Last name of the person
-              timestamp:
-                type: string
-                description: Creation/Update timestamp of the person record
+                description: Slug of the shortlink
 
-  /people/{person_id}:
-    get:
-      operationId: people.read_one
+  /shortlinks/{slug}:
+    post:
+      operationId: short_link.create_custom
       tags:
-        - People
-      summary: Read one person
-      description: Read one person
+        - ShortLink
+      summary: Create a shortlink with a custom slug
+      description: Create a shortlink with a custom slug
       parameters:
-        - name: person_id
+        - name: slug
           in: path
-          description: Id of the person to get
-          type: integer
+          description: Potential slug to use
+          type: string
           required: True
-      responses:
-        200:
-          description: Successfully read person from people data operation
-          schema:
-            type: object
-            properties:
-              person_id:
-                type: string
-                description: Id of the person
-              fname:
-                type: string
-                description: First name of the person
-              lname:
-                type: string
-                description: Last name of the person
-              timestamp:
-                type: string
-                description: Creation/Update timestamp of the person record
-
-    put:
-      operationId: people.update
-      tags:
-        - People
-      summary: Update a person
-      description: Update a person
-      parameters:
-        - name: person_id
-          in: path
-          description: Id the person to update
-          type: integer
-          required: True
-        - name: person
+        - name: input
           in: body
+          description: Info needed to create link
+          required: True
           schema:
             type: object
             properties:
-              fname:
+              destination:
                 type: string
-                description: First name of the person
-              lname:
-                type: string
-                description: Last name of the person
+                description: Destination to link to
       responses:
         200:
-          description: Successfully updated person
-          schema:
-            properties:
-              person_id:
-                type: string
-                description: Id of the person in the database
-              fname:
-                type: string
-                description: First name of the person
-              lname:
-                type: string
-                description: Last name of the person
-              timestamp:
-                type: string
-                description: Creation/Update timestamp of the person record
+          description: Successfully created shortlink
 
-    delete:
-      operationId: people.delete
+
+  /cleanup:
+    post:
+      operationId: short_link.clean_up
       tags:
-        - People
-      summary: Delete a person from the people list
-      description: Delete a person
-      parameters:
-        - name: person_id
-          in: path
-          type: integer
-          description: Id of the person to delete
-          required: true
+        - ShortLink
+      summary: Delete shortlinks past an expiration date
+      description: Delete shortlinks past an expiration date
       responses:
         200:
-          description: Successfully deleted a person
+          description: Successfully cleaned up shortlinks
 
 
