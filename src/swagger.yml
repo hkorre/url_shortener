@@ -64,9 +64,9 @@ paths:
           description: Successfully created shortlink
           schema:
             properties:
-              slug:
+              destination:
                 type: string
-                description: Slug of the shortlink
+                description: Destination of the shortlink
 
   /shortlinks/{slug}:
     post:

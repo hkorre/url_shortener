@@ -6,6 +6,7 @@ people data
 from flask import make_response, abort
 from config import db
 from models import ShortLink, ShortLinkSchema
+from datetime import datetime, timedelta
 
 
 
@@ -70,7 +71,7 @@ def create(link):
     destination = link.get("destination")
 
     existing_link = (
-        ShortLink.query.filter(Shortlink.destination == destination)
+        ShortLink.query.filter(ShortLink.destination == destination)
         .one_or_none()
     )
 
@@ -80,14 +81,18 @@ def create(link):
         # Create a shortlink instance using the schema and the passed in person
         slug = _generate_slug()
         expiration = datetime.utcnow() + timedelta(days=DEFAULT_EXPIRATION_DAYS)
-        new_link = Person(slug=slug, destination=destination, expiration=expiration)
+        new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
+        print("created a new link...")
 
         # Add the shortlink to the database
         db.session.add(new_link)
         db.session.commit()
+        print("added to the database...")
 
         # Serialize and return the newly created link in the response
+        schema = ShortLinkSchema()
         data = schema.dump(new_link)
+        print("grabbed the new link...")
 
         return data, 201
 
@@ -95,8 +100,8 @@ def create(link):
     else:
         abort(
             409,
-            "ShortLink {slug} -> {destination} exists already".format(
-                slug=slug, destination=destination
+            "ShortLink {destination} exists already".format(
+                destination=destination
             ),
         )
 
