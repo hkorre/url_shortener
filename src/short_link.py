@@ -137,68 +137,34 @@ def create_custom(slug, link):
     return data, 201
 
 
+def redirect(slug):
+    """
+    This function redirects the custom url to the destination stored in the database
 
-#def update(person_id, person):
-#    """
-#    This function updates an existing person in the people structure
-#    Throws an error if a person with the name we want to update to
-#    already exists in the database.
-#
-#    :param person_id:   Id of the person to update in the people structure
-#    :param person:      person to update
-#    :return:            updated person structure
-#    """
-#    # Get the person requested from the db into session
-#    update_person = Person.query.filter(
-#        Person.person_id == person_id
-#    ).one_or_none()
-#
-#    # Try to find an existing person with the same name as the update
-#    fname = person.get("fname")
-#    lname = person.get("lname")
-#
-#    existing_person = (
-#        Person.query.filter(Person.fname == fname)
-#        .filter(Person.lname == lname)
-#        .one_or_none()
-#    )
-#
-#    # Are we trying to find a person that does not exist?
-#    if update_person is None:
-#        abort(
-#            404,
-#            "Person not found for Id: {person_id}".format(person_id=person_id),
-#        )
-#
-#    # Would our update create a duplicate of another person already existing?
-#    elif (
-#        existing_person is not None and existing_person.person_id != person_id
-#    ):
-#        abort(
-#            409,
-#            "Person {fname} {lname} exists already".format(
-#                fname=fname, lname=lname
-#            ),
-#        )
-#
-#    # Otherwise go ahead and update!
-#    else:
-#
-#        # turn the passed in person into a db object
-#        schema = PersonSchema()
-#        update = schema.load(person, session=db.session)
-#
-#        # Set the id to the person we want to update
-#        update.person_id = update_person.person_id
-#
-#        # merge the new object into the old and commit it to the db
-#        db.session.merge(update)
-#        db.session.commit()
-#
-#        # return updated person in the response
-#        data = schema.dump(update_person)
-#
-#        return data, 200
+    :param slug:    custom url ending
+    :return:        201 on success, 406 on person exists
+    """
+
+    print('in redirect()')
+    existing_link = (
+        ShortLink.query.filter(ShortLink.slug == slug)
+        .one_or_none()
+    )
+    if existing_link is None:
+        abort(
+            404,
+            "ShortLink {slug} does not exist".format(
+                slug=slug
+            ),
+        )
+    print('found shortlink')
+    print(existing_link.destination)
+
+    headers = {'Location': existing_link.destination}
+    return None, 302, headers
+
+
+
 
 
 def clean_up():

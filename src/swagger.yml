@@ -108,3 +108,27 @@ paths:
           description: Successfully cleaned up shortlinks
 
 
+  /{slug}:
+    get:
+      operationId: short_link.redirect
+      tags:
+        - ShortLink
+      summary: Redirect from slug to new destination
+      description: Redirect from slug to new destination
+      produces:
+      - "application/json"
+      parameters:
+        - name: slug
+          in: path
+          description: Potential slug to use
+          type: string
+          required: True
+      responses:
+        302:
+          description: "302 response"
+          headers:
+            Location:
+              type: "string"
+        404:
+          description: "404 response"
+          headers: {}
