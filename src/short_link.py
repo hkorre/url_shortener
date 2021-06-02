@@ -3,22 +3,37 @@ This is the short_link module and supports all the REST actions for the
 people data
 """
 
-from flask import make_response, abort
+from flask import make_response, abort, redirect
 from config import db
 from models import ShortLink, ShortLinkSchema
 from datetime import datetime, timedelta
+import helpers
 
 
 
-DEFAULT_EXPIRATION_DAYS = 90
+#DEFAULT_EXPIRATION_DAYS = 90
 
-#TODO
-def _generate_slug():
-    return 1111111
+##TODO
+#def _generate_slug():
+#    return 1111111
+#
+##TODO
+#def _is_slug_acceptable(slug):
+#    return True
+#
+#
+#
+#def _add_https(destination):
+#    if destination.find("http://") != 0 and destination.find("https://") != 0:
+#        destination = "http://" + destination
+#    return destination
+#
+#def _is_destination_acceptable(destination):
+#    print(destination)
+#    if destination.find('www.') == -1 or destination.find('.com') == -1:
+#            return False
+#    return True
 
-#TODO
-def _is_slug_acceptable(slug):
-    return True
 
 
 
@@ -35,6 +50,9 @@ def read_all():
     # Serialize the data for the response
     schema = ShortLinkSchema(many=True)
     data = schema.dump(link)
+
+    print(db.session.query(ShortLink).count())
+
     return data
 
 
@@ -46,6 +64,14 @@ def create(link):
     :return:        201 on success, 406 on person exists
     """
     destination = link.get("destination")
+    if Helpers.is_destination_acceptable(destination) is False:
+        abort(
+            409,
+            "Destination {destination} is malformed".format(
+                destination=destination
+            ),
+        )
+    destination = _add_https(destination)
 
     existing_link = (
         ShortLink.query.filter(ShortLink.destination == destination)
@@ -56,8 +82,8 @@ def create(link):
     if existing_link is None:
 
         # Create a shortlink instance using the schema and the passed in person
-        slug = _generate_slug()
-        expiration = datetime.utcnow() + timedelta(days=DEFAULT_EXPIRATION_DAYS)
+        slug = Helpers.generate_slug()
+        expiration = datetime.utcnow() + timedelta(days=Helpers.DEFAULT_EXPIRATION_DAYS)
         new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
 
         # Add the shortlink to the database
@@ -88,6 +114,14 @@ def create_custom(slug, link):
     :return:        201 on success, 406 on person exists
     """
     destination = link.get("destination")
+    if Helpers.is_destination_acceptable(destination) is False:
+        abort(
+            409,
+            "Destination {destination} is malformed".format(
+                destination=destination
+            ),
+        )
+    destination = Helpers.add_https(destination)
 
     existing_slug = (
         ShortLink.query.filter(ShortLink.slug == slug)
@@ -113,7 +147,7 @@ def create_custom(slug, link):
             ),
         )
 
-    if _is_slug_acceptable(slug) == False:
+    if Helpers.is_slug_acceptable(slug) == False:
         abort(
             409,
             "Slug {slug} is not acceptable. Please choose 7 characts made of A-Z, a-z, 0-9".format(
@@ -123,7 +157,7 @@ def create_custom(slug, link):
         
     ## if we can create the link...
     # Create a shortlink instance using the schema and the passed in person
-    expiration = datetime.utcnow() + timedelta(days=DEFAULT_EXPIRATION_DAYS)
+    expiration = datetime.utcnow() + timedelta(days=Helpers.DEFAULT_EXPIRATION_DAYS)
     new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
 
     # Add the shortlink to the database
@@ -145,7 +179,6 @@ def redirect(slug):
     :return:        201 on success, 406 on person exists
     """
 
-    print('in redirect()')
     existing_link = (
         ShortLink.query.filter(ShortLink.slug == slug)
         .one_or_none()
@@ -157,11 +190,10 @@ def redirect(slug):
                 slug=slug
             ),
         )
-    print('found shortlink')
-    print(existing_link.destination)
 
     headers = {'Location': existing_link.destination}
     return None, 302, headers
+    #return redirect(existing_link.destination)
 
 
 
