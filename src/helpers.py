@@ -70,9 +70,10 @@ class Helpers:
             next_id += 1
 
 
-    #TODO
     @staticmethod
     def is_slug_acceptable(slug):
+        if len(slug) != 7 or slug.isalnum() is False:
+            return False
         return True
     
     
@@ -85,9 +86,8 @@ class Helpers:
 
     @staticmethod
     def is_destination_acceptable(destination):
-        print(destination)
-        #TODO - Do we need this? What about .org?
-        #if destination.find('www.') == -1 or destination.find('.com') == -1:
-        #        return False
+        #TODO - How do we accept more domaigns (e.g. .uk)?
+        if destination.find('www.') == -1 or (destination.find('.com') == -1 and destination.find('.org') == -1):
+                return False
         return True
 

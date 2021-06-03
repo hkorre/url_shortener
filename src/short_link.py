@@ -101,7 +101,7 @@ def create_custom(slug, link, exp_month=None, exp_day=None, exp_year=None):
 
     :param slug:    custom url ending
     :param link:    holds info needed to create shortlink
-    :return:        201 on success, 406 on person exists
+    :return:        201 on success, 406 on shortlink exists
     """
     destination = link.get("destination")
     if Helpers.is_destination_acceptable(destination) is False:
