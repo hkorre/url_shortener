@@ -5,9 +5,9 @@ URL Shortener
 ## How to run
 
 There is a docker container that contains all the dependencies.
-$ cd docker
-$ ./build.sh
-$ ./run.sh
+* $ cd docker
+* $ ./build.sh
+* $ ./run.sh
 
 If need to attach a second terminal:
 $ ./attach.sh
@@ -20,8 +20,9 @@ that is normally run outside docker.
 
 
 To run the system:
-$ cd src
-$ python server.py
+* $ cd src
+* $ build_database.py
+* $ python server.py
 
 You can access the swagger UI outside the docker by going to:
 localhost:8888/api/ui/
