@@ -40,7 +40,7 @@ class Helpers:
     @classmethod
     def _get_dummy_ShortLink(cls):
         expiration = datetime.utcnow() + timedelta(days=cls.DEFAULT_EXPIRATION_DAYS)
-        new_link = ShortLink(slug='0000000', destination=None, expiration=expiration)
+        new_link = ShortLink(slug='aaaaaaa', destination=None, expiration=expiration)
         return new_link
 
 
@@ -90,8 +90,4 @@ class Helpers:
         #if destination.find('www.') == -1 or destination.find('.com') == -1:
         #        return False
         return True
-
-
-
-
 

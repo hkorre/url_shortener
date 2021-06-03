@@ -11,30 +11,6 @@ from helpers import Helpers
 
 
 
-#DEFAULT_EXPIRATION_DAYS = 90
-
-##TODO
-#def _generate_slug():
-#    return 1111111
-#
-##TODO
-#def _is_slug_acceptable(slug):
-#    return True
-#
-#
-#
-#def _add_https(destination):
-#    if destination.find("http://") != 0 and destination.find("https://") != 0:
-#        destination = "http://" + destination
-#    return destination
-#
-#def _is_destination_acceptable(destination):
-#    print(destination)
-#    if destination.find('www.') == -1 or destination.find('.com') == -1:
-#            return False
-#    return True
-
-
 
 
 def read_all():
@@ -56,13 +32,14 @@ def read_all():
     return data
 
 
-def create(link):
+def create(link, exp_month=None, exp_day=None, exp_year=None):
     """
     This function creates a new shortlink based on the passed in destination
 
     :param link:    holds info needed to create shortlink
     :return:        201 on success, 406 on person exists
     """
+
     destination = link.get("destination")
     if Helpers.is_destination_acceptable(destination) is False:
         abort(
@@ -83,7 +60,21 @@ def create(link):
 
         # Create a shortlink instance using the schema and the passed in person
         slug = Helpers.generate_slug()
-        expiration = datetime.utcnow() + timedelta(days=Helpers.DEFAULT_EXPIRATION_DAYS)
+
+
+        if exp_month is not None or exp_day is not None or exp_year is not None:
+            try:
+                expiration = datetime(year=exp_year, month=exp_month, day=exp_day)
+            except:
+                abort(
+                    409,
+                    "Date {month}-{day}-{year} is malformed".format(
+                        month=exp_month, day=exp_day, year=exp_year
+                    ),
+                )
+        else:
+            expiration = datetime.utcnow() + timedelta(days=Helpers.DEFAULT_EXPIRATION_DAYS)
+
         new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
 
         # Add the shortlink to the database
