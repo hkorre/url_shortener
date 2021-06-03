@@ -48,6 +48,8 @@ The enpoints are pretty simple.
 /{slug} makes the url really short for redirection
 /shortlinks and /shortlinks/{slug} follow the convention of the path aligning to resources.
 
+/cleanup is also an endpoint. That way we can run a cron job, say weekly, that would easily call the
+endpoint with a curl command.
 
 ### parameters
 
