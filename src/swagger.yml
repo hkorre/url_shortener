@@ -106,6 +106,21 @@ paths:
               destination:
                 type: string
                 description: Destination to link to
+        - name: exp_month
+          in: query
+          description: Expiration month
+          required: False
+          type: integer
+        - name: exp_day
+          in: query
+          description: Expiration day
+          required: False
+          type: integer
+        - name: exp_year
+          in: query
+          description: Expiration year
+          required: False
+          type: integer
       responses:
         200:
           description: Successfully created shortlink

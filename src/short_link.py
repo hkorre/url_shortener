@@ -61,7 +61,6 @@ def create(link, exp_month=None, exp_day=None, exp_year=None):
         # Create a shortlink instance using the schema and the passed in person
         slug = Helpers.generate_slug()
 
-
         if exp_month is not None or exp_day is not None or exp_year is not None:
             try:
                 expiration = datetime(year=exp_year, month=exp_month, day=exp_day)
@@ -96,7 +95,7 @@ def create(link, exp_month=None, exp_day=None, exp_year=None):
             ),
         )
 
-def create_custom(slug, link):
+def create_custom(slug, link, exp_month=None, exp_day=None, exp_year=None):
     """
     This function creates a new shortlink to a custom slug based on the passed in destination
 
@@ -148,7 +147,18 @@ def create_custom(slug, link):
         
     ## if we can create the link...
     # Create a shortlink instance using the schema and the passed in person
-    expiration = datetime.utcnow() + timedelta(days=Helpers.DEFAULT_EXPIRATION_DAYS)
+    if exp_month is not None or exp_day is not None or exp_year is not None:
+        try:
+            expiration = datetime(year=exp_year, month=exp_month, day=exp_day)
+        except:
+            abort(
+                409,
+                "Date {month}-{day}-{year} is malformed".format(
+                    month=exp_month, day=exp_day, year=exp_year
+                ),
+            )
+    else:
+        expiration = datetime.utcnow() + timedelta(days=Helpers.DEFAULT_EXPIRATION_DAYS)
     new_link = ShortLink(slug=slug, destination=destination, expiration=expiration)
 
     # Add the shortlink to the database
