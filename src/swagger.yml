@@ -1,0 +1,164 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger for URL Shortener
+consumes:
+  - application/json
+produces:
+  - application/json
+
+basePath: /api
+
+# Paths supported by the server application
+paths:
+  /shortlinks:
+    get:
+      operationId: short_link.read_all
+      tags:
+        - ShortLink
+      summary: Read the entire set of links, for debug
+      description: Read the entire set of links, for debug
+      responses:
+        200:
+          description: Successfully read shorlink set operation
+          schema:
+            type: array
+            items:
+              properties:
+                shortLink_id:
+                  type: string
+                  description: Id of the shortlink
+                slug:
+                  type: string
+                  description: Slug of the shortlink
+                destination:
+                  type: string
+                  description: Destination URL
+                timestamp:
+                  type: string
+                  description: Creation/Update timestamp of the shortlink
+                expiration:
+                  type: string
+                  description: Expiration timestamp of the shortlink
+
+    post:
+      operationId: short_link.create
+      tags:
+        - ShortLink
+      summary: Create a shortlink with automatic slug
+      description: Create a new shortlink with automatic slug
+      parameters:
+        - name: link
+          in: body
+          description: Info needed to create link
+          required: True
+          schema:
+            type: object
+            properties:
+              destination:
+                type: string
+                description: Destination to link to
+        - name: exp_month
+          in: query
+          description: Expiration month
+          required: False
+          type: integer
+        - name: exp_day
+          in: query
+          description: Expiration day
+          required: False
+          type: integer
+        - name: exp_year
+          in: query
+          description: Expiration year
+          required: False
+          type: integer
+      responses:
+        201:
+          description: Successfully created shortlink
+          schema:
+            properties:
+              destination:
+                type: string
+                description: Destination of the shortlink
+
+  /shortlinks/{slug}:
+    post:
+      operationId: short_link.create_custom
+      tags:
+        - ShortLink
+      summary: Create a shortlink with a custom slug
+      description: Create a shortlink with a custom slug
+      parameters:
+        - name: slug
+          in: path
+          description: Potential slug to use
+          type: string
+          required: True
+        - name: link
+          in: body
+          description: Info needed to create link
+          required: True
+          schema:
+            type: object
+            properties:
+              destination:
+                type: string
+                description: Destination to link to
+        - name: exp_month
+          in: query
+          description: Expiration month
+          required: False
+          type: integer
+        - name: exp_day
+          in: query
+          description: Expiration day
+          required: False
+          type: integer
+        - name: exp_year
+          in: query
+          description: Expiration year
+          required: False
+          type: integer
+      responses:
+        200:
+          description: Successfully created shortlink
+
+
+  /cleanup:
+    post:
+      operationId: short_link.clean_up
+      tags:
+        - ShortLink
+      summary: Delete shortlinks past an expiration date
+      description: Delete shortlinks past an expiration date
+      responses:
+        200:
+          description: Successfully cleaned up shortlinks
+
+
+  /{slug}:
+    get:
+      operationId: short_link.redirect
+      tags:
+        - ShortLink
+      summary: Redirect from slug to new destination
+      description: Redirect from slug to new destination
+      produces:
+      - "application/json"
+      parameters:
+        - name: slug
+          in: path
+          description: Potential slug to use
+          type: string
+          required: True
+      responses:
+        302:
+          description: "302 response"
+          headers:
+            Location:
+              type: "string"
+        404:
+          description: "404 response"
+          headers: {}
