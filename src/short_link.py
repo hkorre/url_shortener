@@ -7,7 +7,7 @@ from flask import make_response, abort, redirect
 from config import db
 from models import ShortLink, ShortLinkSchema
 from datetime import datetime, timedelta
-import helpers
+from helpers import Helpers
 
 
 
@@ -71,7 +71,7 @@ def create(link):
                 destination=destination
             ),
         )
-    destination = _add_https(destination)
+    destination = Helpers.add_https(destination)
 
     existing_link = (
         ShortLink.query.filter(ShortLink.destination == destination)
